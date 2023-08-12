@@ -7,7 +7,7 @@ import std/[sequtils, algorithm]
 # TODO make consider whether I should use .. or ..< and make sure conversions are consistent between layers
 # TODO change everything to use .. and always use y, x
 
-type Grid*[T] = object
+type Grid*[T] = object      ## Origin is the top left
     width*, height*: int
     data*: seq[T]
     default*: T
@@ -104,6 +104,11 @@ iterator rows*[T](grid: Grid[T]): Grid[T] =
 iterator columns*[T](grid: Grid[T]): Grid[T] =
     for x in 0 ..< grid.width:
         yield grid.getColumn(x)
+
+iterator coordinates*[T](grid: Grid[T]): tuple[y, x: int] =
+    for a in 0 ..< grid.height:
+        for b in 0 ..< grid.width:
+            yield (a, b)
     
 proc copyShape(grid: Grid): Grid =
     result.height = grid.height

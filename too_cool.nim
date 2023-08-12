@@ -85,6 +85,9 @@ proc hovering(f: Field): ColorOpt =
 
     grid[f.cursor_y, f.cursor_x]
 
+proc cursorLocation*(f: Field): Location =
+    Location(g: f.cursor_grid, y: f.cursor_y, x: f.cursor_x)
+
 proc get(f: Field, l: Location): ColorOpt =
     case l.g:
     of Color1:
@@ -133,19 +136,19 @@ proc targetHorizontal*(f: Field): Location =
                     break search
             result.x = 0
     of Color3:
-        let a = f.tl.getRow(f.cursor_y)
+        let a = f.br.getRow(f.cursor_y)
         result.g = Color4
         block search:
-            for i in countdown(a.width - 1, 0):
+            for i in 0 ..< a.width:
                 if cur != a[0, i]:
                     result.x = i
                     break search
             result.x = 3
     of Color2:
-        let a = f.br.getRow(f.cursor_y)
-        result.g = Color1
+        let a = f.tl.getRow(f.cursor_y)
+        result.g =  Color1  
         block search:
-            for i in 0 ..< a.width:
+            for i in countdown(a.width - 1, 0):
                 if cur != a[0, i]:
                     result.x = i
                     break search
@@ -166,7 +169,7 @@ proc targetVertical*(f: Field): Location =
     case f.cursor_grid:
     of Color1:
         let a = f.bl.getColumn(f.cursor_x)
-        result.g = Color2
+        result.g = Color3
         block search:
             for i in 0 ..< a.height:
                 if cur != a[i, 0]:
@@ -175,25 +178,25 @@ proc targetVertical*(f: Field): Location =
             result.y = 0
     of Color2:
         let a = f.tl.getColumn(f.cursor_x)
-        result.g = Color1
-        block search:
-            for i in countdown(a.height - 1, 0):
-                if cur != a[i, 0]:
-                    result.y = i
-                    break search
-            result.y = 3
-    of Color3:
-        let a = f.br.getColumn(f.cursor_y)
         result.g = Color4
         block search:
             for i in 0 ..< a.height:
                 if cur != a[i, 0]:
                     result.y = i
                     break search
+            result.y = 3
+    of Color3:
+        let a = f.br.getColumn(f.cursor_y)
+        result.g = Color1
+        block search:
+            for i in countdown(a.height - 1, 0):
+                if cur != a[i, 0]:
+                    result.y = i
+                    break search
             result.y = 0
     of Color4:
         let a = f.tr.getColumn(f.cursor_y)
-        result.g = Color3
+        result.g = Color2
         block search:
             for i in countdown(a.height - 1, 0):
                 if cur != a[i, 0]:
@@ -201,7 +204,7 @@ proc targetVertical*(f: Field): Location =
                     break search
             result.y = 3
 
-proc swap(f: var Field, a, b: Location) =
+proc swap*(f: var Field, a, b: Location) =
     var temp_a = f.get(a)
     var temp_b = f.get(b)
 

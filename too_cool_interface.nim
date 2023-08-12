@@ -112,6 +112,14 @@ proc main =
     elif p.mode == Swap:
       if isKeyPressed(Space):
         p.mode = Move
+      if isKeyPressed(Right) or isKeyPressed(Left):
+        let h = p.field.targetHorizontal
+        let c = p.field.cursorLocation
+        p.field.swap(h, c)
+      if isKeyPressed(Up) or isKeyPressed(Down):
+        let h = p.field.targetVertical
+        let c = p.field.cursorLocation
+        p.field.swap(h, c)
 
     beginDrawing()
     clearBackground(RayWhite)

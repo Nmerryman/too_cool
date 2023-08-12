@@ -118,7 +118,7 @@ proc subGrid*[T](grid: Grid[T], y0, y1, x0, x1: int): Grid[T] =
     result.default = grid.default
     for y in y0 .. y1:
         for x in x0 .. x1:
-            result.data.add(grid.get(y, x))
+            result.data.add(grid[y, x])
     result.height = y1 - y0 + 1
     result.width = x1 - x0 + 1
 

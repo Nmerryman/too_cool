@@ -34,11 +34,6 @@ proc rebuildGrid*(grid: var Grid, y, x: int) =
     grid.height = y
     grid.width = x
 
-proc get*[T](grid: Grid[T], y, x: int): T =
-    if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
-        return default(T)
-    grid.data[x + y * grid.width]
-
 proc getRow*[T](grid: Grid[T], y: int): Grid[T] =
     if y < 0 or y >= grid.height:
         return repeat(default(T), grid.width).toGrid.reshape(grid.width, 1)  # new from default
@@ -49,13 +44,6 @@ proc getColumn*[T](grid: Grid[T], x: int): Grid[T] =
         return repeat(default(T), grid.height).toGrid  # new from default
     grid.subGrid(0, grid.height - 1, x, x)
 
-proc set*[T](grid: var Grid[T], y, x: int, val: T) =
-    # One of the only procs to not return anything
-    # TODO consider changing that
-    if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
-        raise newException(FieldDefect, "Invalid coodinates")
-    grid.data[x + y * grid.width] = val
-
 proc repl*(grid: Grid): string =
     var text: string = "\n"
     for a in 0 ..< grid.height:
@@ -65,13 +53,19 @@ proc repl*(grid: Grid): string =
     text
 
 proc `[]`*[T](grid: Grid[T], y, x: int): T =
-    grid.get(y, x)
+    if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
+        return default(T)
+    grid.data[x + y * grid.width]
 
 proc `[]`*[T](grid: Grid[T], ySlice, xSlice: Slice[int]): Grid[T] =
     grid.subGrid(ySlice, xSlice)
 
 proc `[]=`*[T](grid: var Grid[T], y, x: int, val: T) =
-    grid.set(y, x, val)
+    # One of the only procs to not return anything
+    # TODO consider changing that
+    if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
+        raise newException(FieldDefect, "Invalid coodinates")
+    grid.data[x + y * grid.width] = val
 
 proc `[]=`*[T](grid: var Grid[T], ySlice, xSlice: Slice[int], val: Grid[T]) =
     if ySlice.b - ySlice.a != val.height - 1 or xSlice.b - xSlice.a != val.width - 1:

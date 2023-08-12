@@ -1,5 +1,5 @@
-import sequtils, algorithm
-# TODO consider if I should return a grid object instead of seq[T] for rows+
+import std/[sequtils, algorithm]
+# TODO consider if I should return a grid object instead of seq[T] for rows
 # TODO make copy or use of var consistent
 # TODO make sure dimensions and default is being transfered properly
 # TODO reorganize procs to something more sensible
@@ -12,7 +12,7 @@ type Grid*[T] = object
     data*: seq[T]
     default*: T
 
-proc newGrid*[T](height, width: int, default: T = default(T)): Grid[T] =
+proc initGrid*[T](height, width: int, default: T = default(T)): Grid[T] =
     result.data = @[]
     result.width = width
     result.height = height
@@ -20,10 +20,10 @@ proc newGrid*[T](height, width: int, default: T = default(T)): Grid[T] =
     for _ in 0 ..< (width * height):
         result.data.add(default)
 
-proc newGrid*[T](size: openArray[int], default: T = default(T)): Grid[T] =
+proc initGrid*[T](size: openArray[int], default: T = default(T)): Grid[T] =
     if size.len != 2:
         raise newException(RangeDefect, "Too many grid dimensions")
-    newGrid(size[0], size[1], default)
+    Grid(size[0], size[1], default)
 
 proc rebuildGrid*(grid: var Grid, y, x: int) =
     if x * y <= grid.data.len:
@@ -66,9 +66,6 @@ proc repl*(grid: Grid): string =
 
 proc `[]`*[T](grid: Grid[T], y, x: int): T =
     grid.get(y, x)
-
-# proc `[]`*[T](grid: Grid[T], y: int): seq[T] =
-#     grid.getRow(y)
 
 proc `[]`*[T](grid: Grid[T], ySlice, xSlice: Slice[int]): Grid[T] =
     grid.subGrid(ySlice, xSlice)
@@ -168,16 +165,10 @@ proc rotatecw*[T](grid: Grid[T]): Grid[T] =
         result[a .. a, 0 .. result.width - 1] = col
     # echo "r", result
             
-    # for a in 0 ..< grid.width:
-    #     for b in 0 ..< grid.height:
-    #         result[b, a] = shape[grid.height - 1 - b].data[a]
-
 proc rotatecw*(grid: Grid, count: int): Grid =
     var thing = grid
     for _ in 0 ..< count:
-        # echo thing  #FIXME remove debug?
         thing = thing.rotatecw
-    # echo thing
     thing
 
 proc mapItem*[T, S](grid: Grid[T], mapped: proc (arg: T): S): Grid[S] =

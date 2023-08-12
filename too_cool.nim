@@ -19,9 +19,9 @@ proc initField*: Field =
     result.br_color = Color4
 
     result.tl = initGrid(4, 4, Color1)
-    result.tl = initGrid(4, 4, Color3)
-    result.tl = initGrid(4, 4, Color2)
-    result.tl = initGrid(4, 4, Color4)
+    result.tr = initGrid(4, 4, Color3)
+    result.bl = initGrid(4, 4, Color2)
+    result.br = initGrid(4, 4, Color4)
 
     result.cursor_grid = Color1
     result.cursor_x = 0

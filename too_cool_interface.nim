@@ -3,6 +3,8 @@ import too_cool
 import grids
 
 type
+  CursorMode = enum
+    Move, Swap
   Visuals = object
     start_y, start_x, height, width: int
     colors: array[ColorOpt, Color]
@@ -13,6 +15,7 @@ type
   Player = object
     field: Field
     vis: Visuals
+    mode: CursorMode
 
 const
   screenWidth = 800
@@ -23,7 +26,7 @@ proc initPlayer(x1, y1, x2, y2: int): Player =
   visuals.colors = [Red, Green, Blue, White]
   visuals.field_size = Vector2(x: (visuals.width - 3 * visuals.grid_buffer).float32 / 2, y: (visuals.height - 3 * visuals.grid_buffer).float32 / 2)
   visuals.square_size = Vector2(x: (visuals.field_size.x.int - 5 * visuals.square_buffer) / 4, y: (visuals.field_size.y.int - 5 * visuals.square_buffer) / 4)
-  Player(field: initField(), vis: visuals)
+  Player(field: initField(), vis: visuals, mode: Move)
 
 proc darken(c: Color, amount: int = 50): Color =
   Color(r: max(c.r - amount.uint8, 0).uint8, g: max(c.g - amount.uint8, 0).uint8, b: max(c.b - amount.uint8, 0).uint8, a: c.a)
@@ -72,13 +75,12 @@ proc drawFields(p: Player) =
     var start = getSquareCorner(p, y, x, Color4)
     drawRectangle(start, p.vis.square_size, p.vis.colors[p.field.br[y, x]])
 
-# proc drawHollowSquare(origin, size: Vector2, border: int, color: Color) =
-#   drawRectangle(Vector2(x: origin.x - border.float32, y: origin.y - border.float32), Vector2(x: size.x + 2 * border.float32, y: 2 * border.float32), color)
-#   drawRectangle(Vector2(x: origin.x - border.float32, y: origin.y - border.float32), Vector2(x: size.x + 2 * border.float32, y: 2 * border.float32), color)
-
 proc drawCursor(p: Player) =
   let location = getSquareCorner(p, p.field.cursor_y, p.field.cursor_x, p.field.cursor_grid)
-  drawRectangleRoundedLines(Rectangle(x: location.x, y: location.y, width: p.vis.square_size.x, height: p.vis.square_size.y), 0.float32, 4.int32, 5.float32, Yellow)
+  var color = Yellow
+  if p.mode == Swap:
+    color = Black
+  drawRectangleRoundedLines(Rectangle(x: location.x, y: location.y, width: p.vis.square_size.x, height: p.vis.square_size.y), 0.float32, 4.int32, 5.float32, color)
 
 proc drawPlayer(p: Player) =
   ## We assume we are in a drawing context
@@ -96,14 +98,20 @@ proc main =
 
   while not windowShouldClose(): # Detect window close button or ESC key
 
-    if isKeyPressed(Up):
-      cursorUp(p.field)
-    if isKeyPressed(Right):
-      cursorRight(p.field)
-    if isKeyPressed(Down):
-      cursorDown(p.field)
-    if isKeyPressed(Left):
-      cursorLeft(p.field)
+    if p.mode == Move:
+      if isKeyPressed(Up):
+        cursorUp(p.field)
+      if isKeyPressed(Right):
+        cursorRight(p.field)
+      if isKeyPressed(Down):
+        cursorDown(p.field)
+      if isKeyPressed(Left):
+        cursorLeft(p.field)
+      if isKeyPressed(Space):
+        p.mode = Swap
+    elif p.mode == Swap:
+      if isKeyPressed(Space):
+        p.mode = Move
 
     beginDrawing()
     clearBackground(RayWhite)

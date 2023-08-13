@@ -13,6 +13,50 @@ type
         g*: ColorOpt
         x*, y*: int
 
+proc `[]`(f: Field, l: Location): ColorOpt =
+    case l.g:
+    of Color1:
+        f.tl[l.y, l.x]
+    of Color2:
+        f.tr[l.y, l.x]
+    of Color3:
+        f.bl[l.y, l.x]
+    of Color4:
+        f.br[l.y, l.x]
+
+proc `[]`*(f: var Field, c: ColorOpt): var Grid =
+    case c:
+    of Color1:
+        f.tl
+    of Color2:
+        f.tr
+    of Color3:
+        f.bl
+    of Color4:
+        f.br
+
+proc `[]=`(f: var Field, l: Location, c: ColorOpt) =
+    case l.g:
+    of Color1:
+        f.tl[l.y, l.x] = c
+    of Color2:
+        f.tr[l.y, l.x] = c
+    of Color3:
+        f.bl[l.y, l.x] = c
+    of Color4:
+        f.br[l.y, l.x] = c
+
+proc `==`*(a, b: Field): bool =
+    a.tl == b.tl and a.tl_color == b.tl_color and a.tr == b.tr and a.tr_color == b.tr_color and
+     a.bl == b.bl and a.bl_color == b.bl_color and a.br == b.br and a.br_color == b.br_color
+
+proc swap*(f: var Field, a, b: Location) =
+    var temp_a = f[a]
+    var temp_b = f[b]
+
+    f[b] = temp_a
+    f[a] = temp_b
+
 proc initField*: Field =
     result.tl_color = Color1
     result.tr_color = Color2
@@ -61,6 +105,54 @@ proc initRandomField*: Field =
         result.br[y, x] = choice
         remaining[choice] -= 1
 
+proc initSmartField*: Field =
+    result = initField()
+
+    var collection: seq[Location] = @[]
+
+    for y, x in result.tl.coordinates:
+        for g in ColorOpt:
+            collection.add(Location(g: g, x: x, y: y))
+
+    for y, x in result.tl.coordinates:
+        var curl = Location(g: Color1, x: x, y: y)
+        var cur = result[curl]
+        if cur != Color1:
+            continue
+        var choice = sample(collection)
+        while choice.g == Color1 or result[choice] == Color1:
+            choice = sample(collection)
+        result.swap(curl, choice)
+
+    for y, x in result.tr.coordinates:
+        var curl = Location(g: Color2, x: x, y: y)
+        var cur = result[curl]
+        if cur != Color2:
+            continue
+        var choice = sample(collection)
+        while choice.g == Color2 or result[choice] == Color2:
+            choice = sample(collection)
+        result.swap(curl, choice)
+
+    for y, x in result.bl.coordinates:
+        var curl = Location(g: Color3, x: x, y: y)
+        var cur = result[curl]
+        if cur != Color3:
+            continue
+        var choice = sample(collection)
+        while choice.g == Color3 or result[choice] == Color3:
+            choice = sample(collection)
+        result.swap(curl, choice)
+
+    for y, x in result.br.coordinates:
+        var curl = Location(g: Color4, x: x, y: y)
+        var cur = result[curl]
+        if cur != Color4:
+            continue
+        var choice = sample(collection)
+        while choice.g == Color4 or result[choice] == Color4:
+            choice = sample(collection)
+        result.swap(curl, choice)
 
 proc cursorRight*(f: var Field) =
     if f.cursor_x < 3:
@@ -122,44 +214,6 @@ proc hovering(f: Field): ColorOpt =
 
 proc cursorLocation*(f: Field): Location =
     Location(g: f.cursor_grid, y: f.cursor_y, x: f.cursor_x)
-
-proc get(f: Field, l: Location): ColorOpt =
-    case l.g:
-    of Color1:
-        f.tl[l.y, l.x]
-    of Color2:
-        f.tr[l.y, l.x]
-    of Color3:
-        f.bl[l.y, l.x]
-    of Color4:
-        f.br[l.y, l.x]
-
-proc `[]`*(f: var Field, c: ColorOpt): var Grid =
-    case c:
-    of Color1:
-        f.tl
-    of Color2:
-        f.tr
-    of Color3:
-        f.bl
-    of Color4:
-        f.br
-
-proc `==`*(a, b: Field): bool =
-    a.tl == b.tl and a.tl_color == b.tl_color and a.tr == b.tr and a.tr_color == b.tr_color and
-     a.bl == b.bl and a.bl_color == b.bl_color and a.br == b.br and a.br_color == b.br_color
-
-proc place(f: var Field, l: Location, c: ColorOpt) =
-    case l.g:
-    of Color1:
-        f.tl[l.y, l.x] = c
-    of Color2:
-        f.tr[l.y, l.x] = c
-    of Color3:
-        f.bl[l.y, l.x] = c
-    of Color4:
-        f.br[l.y, l.x] = c
-        
 
 proc targetHorizontal*(f: Field): Location =
     let cur = f.hovering
@@ -242,13 +296,6 @@ proc targetVertical*(f: Field): Location =
                     result.y = i
                     break search
             result.y = 3
-
-proc swap*(f: var Field, a, b: Location) =
-    var temp_a = f.get(a)
-    var temp_b = f.get(b)
-
-    f.place(b, temp_a)
-    f.place(a, temp_b)
 
 proc main =
     var temp = initRandomField()

@@ -2,7 +2,7 @@
 import raylib
 import too_cool
 import grids
-import std/[math]
+import std/[math, random]
 
 type
   CursorMode = enum
@@ -130,8 +130,9 @@ proc drawTime(t: Timer, p: Player) =
 
 
 proc main =
-    
-  initWindow(screenWidth, screenHeight, "raylib [core] example - basic window")
+  randomize()
+
+  initWindow(screenWidth, screenHeight, "Too Cool :P")
   setTargetFPS(60) # Set our game to run at 60 frames-per-second
   var p = initPlayer(20, 20, 500, 500)
   let goal = initField()
@@ -165,7 +166,8 @@ proc main =
         p.mode = Move
     
     if isKeyPressed(R):
-      p.field = initRandomField()
+      p.field = initSmartField()
+      t = initTimer()
     
     if isKeyPressed(P):
       echo p.field

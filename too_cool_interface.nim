@@ -1,3 +1,4 @@
+{.experimental: "codeReordering".}
 import raylib
 import too_cool
 import grids
@@ -12,6 +13,8 @@ type
     square_buffer: int
     field_size: Vector2
     square_size: Vector2
+    line_color: Color
+    line_width: float32
   Player = object
     field: Field
     vis: Visuals
@@ -21,11 +24,16 @@ const
   screenWidth = 800
   screenHeight = 650
 
+proc `+`(a, b: Vector2): Vector2 =
+  Vector2(x: a.x + b.x, y: a.y + b.y)
+
 proc initPlayer(x1, y1, x2, y2: int): Player =
   var visuals = Visuals(start_x: x1, start_y: y1, height: y2 - y1, width: x2 - x1, grid_buffer: 10, square_buffer: 2)
   visuals.colors = [Red, Green, Blue, White]
   visuals.field_size = Vector2(x: (visuals.width - 3 * visuals.grid_buffer).float32 / 2, y: (visuals.height - 3 * visuals.grid_buffer).float32 / 2)
   visuals.square_size = Vector2(x: (visuals.field_size.x.int - 5 * visuals.square_buffer) / 4, y: (visuals.field_size.y.int - 5 * visuals.square_buffer) / 4)
+  visuals.line_color = Yellow
+  visuals.line_width = 10
   Player(field: initField(), vis: visuals, mode: Move)
 
 proc darken(c: Color, amount: int = 50): Color =
@@ -49,6 +57,8 @@ proc getSquareCorner(p: Player, y, x: int, c: ColorOpt): Vector2 =
   result.y = float(y * (p.vis.square_buffer + p.vis.square_size.y.int) + p.vis.square_buffer + coy)
   result.x = float(x * (p.vis.square_buffer + p.vis.square_size.x.int) + p.vis.square_buffer + cox)
 
+proc getSquareCorner(p: Player, l: Location): Vector2 =
+  getSquareCorner(p, l.y, l.x, l.g)
 
 proc drawFields(p: Player) =
   # Draw field background first
@@ -87,6 +97,20 @@ proc drawPlayer(p: Player) =
   drawRectangle(p.vis.start_x.int32, p.vis.start_y.int32, p.vis.width.int32, p.vis.height.int32, Gray)
   drawFields(p)
   drawCursor(p)
+  if p.mode == Swap:
+    drawSwapArrows(p)
+
+proc drawSwapArrows(p: Player) =
+  let cur = p.field.cursorLocation
+  let h = p.field.targetHorizontal
+  let v = p.field.targetVertical
+
+  var start = p.getSquareCorner(cur) + Vector2(x: p.vis.square_size.x / 2, y: p.vis.square_size.y / 2)
+  var endh = p.getSquareCorner(h) + Vector2(x: p.vis.square_size.x / 2, y: p.vis.square_size.y / 2)
+  var endv = p.getSquareCorner(v) + Vector2(x: p.vis.square_size.x / 2, y: p.vis.square_size.y / 2)
+
+  drawLine(start, endh, p.vis.line_width, p.vis.line_color)
+  drawLine(start, endv, p.vis.line_width, p.vis.line_color)
 
 
 proc main =
@@ -94,7 +118,6 @@ proc main =
   initWindow(screenWidth, screenHeight, "raylib [core] example - basic window")
   setTargetFPS(60) # Set our game to run at 60 frames-per-second
   var p = initPlayer(20, 20, 500, 500)
-  echo p.field.tl
 
   while not windowShouldClose(): # Detect window close button or ESC key
 
@@ -116,10 +139,12 @@ proc main =
         let h = p.field.targetHorizontal
         let c = p.field.cursorLocation
         p.field.swap(h, c)
+        p.mode = Move
       if isKeyPressed(Up) or isKeyPressed(Down):
         let h = p.field.targetVertical
         let c = p.field.cursorLocation
         p.field.swap(h, c)
+        p.mode = Move
 
     beginDrawing()
     clearBackground(RayWhite)

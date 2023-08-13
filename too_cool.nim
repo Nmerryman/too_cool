@@ -251,7 +251,8 @@ proc swap*(f: var Field, a, b: Location) =
     f.place(a, temp_b)
 
 proc main =
-    discard
+    var temp = initRandomField()
+    echo temp
 
 if isMainModule:
     main()

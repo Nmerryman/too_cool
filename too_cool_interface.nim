@@ -2,6 +2,7 @@
 import raylib
 import too_cool
 import grids
+import std/[math]
 
 type
   CursorMode = enum
@@ -37,7 +38,7 @@ proc update(t: var Timer) =
   t.last = getTime()
 
 proc elapsed(t: Timer): float =
-  max(t.last - t.start, 0)
+  max(round(t.last - t.start, 3), 0)
 
 proc initPlayer(x1, y1, x2, y2: int): Player =
   var visuals = Visuals(start_x: x1, start_y: y1, height: y2 - y1, width: x2 - x1, grid_buffer: 10, square_buffer: 2)

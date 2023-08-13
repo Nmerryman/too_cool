@@ -48,7 +48,7 @@ proc repl*(grid: Grid): string =
     var text: string = "\n"
     for a in 0 ..< grid.height:
         for b in 0 ..< grid.width:
-            text.add($grid.get(b, a) & ", ")
+            text.add($grid[b, a] & ", ")
         text.add("\n")
     text
 

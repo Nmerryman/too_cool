@@ -1,4 +1,5 @@
 import grids
+import std/[random]
 
 type
     ColorOpt* = enum
@@ -26,6 +27,40 @@ proc initField*: Field =
     result.cursor_grid = Color1
     result.cursor_x = 0
     result.cursor_y = 0
+
+proc initRandomField*: Field =
+    result = initField()
+
+    var remaining: array[ColorOpt, int] = [16, 16, 16, 16]
+
+    for y, x in result.tl.coordinates:
+        var choice = rand(ColorOpt)
+        while remaining[choice] == 0:
+            choice = rand(ColorOpt)
+        result.tl[y, x] = choice
+        remaining[choice] -= 1
+
+    for y, x in result.tr.coordinates:
+        var choice = rand(ColorOpt)
+        while remaining[choice] == 0:
+            choice = rand(ColorOpt)
+        result.tr[y, x] = choice
+        remaining[choice] -= 1
+
+    for y, x in result.bl.coordinates:
+        var choice = rand(ColorOpt)
+        while remaining[choice] == 0:
+            choice = rand(ColorOpt)
+        result.bl[y, x] = choice
+        remaining[choice] -= 1
+
+    for y, x in result.br.coordinates:
+        var choice = rand(ColorOpt)
+        while remaining[choice] == 0:
+            choice = rand(ColorOpt)
+        result.br[y, x] = choice
+        remaining[choice] -= 1
+
 
 proc cursorRight*(f: var Field) =
     if f.cursor_x < 3:
@@ -99,7 +134,7 @@ proc get(f: Field, l: Location): ColorOpt =
     of Color4:
         f.br[l.y, l.x]
 
-proc `[]`(f: var Field, c: ColorOpt): var Grid =
+proc `[]`*(f: var Field, c: ColorOpt): var Grid =
     case c:
     of Color1:
         f.tl
@@ -109,6 +144,10 @@ proc `[]`(f: var Field, c: ColorOpt): var Grid =
         f.bl
     of Color4:
         f.br
+
+proc `==`*(a, b: Field): bool =
+    a.tl == b.tl and a.tl_color == b.tl_color and a.tr == b.tr and a.tr_color == b.tr_color and
+     a.bl == b.bl and a.bl_color == b.bl_color and a.br == b.br and a.br_color == b.br_color
 
 proc place(f: var Field, l: Location, c: ColorOpt) =
     case l.g:
@@ -211,10 +250,8 @@ proc swap*(f: var Field, a, b: Location) =
     f.place(b, temp_a)
     f.place(a, temp_b)
 
-
 proc main =
     discard
-
 
 if isMainModule:
     main()

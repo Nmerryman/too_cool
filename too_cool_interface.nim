@@ -19,6 +19,9 @@ type
     field: Field
     vis: Visuals
     mode: CursorMode
+  Timer = object
+    start: float
+    last: float
 
 const
   screenWidth = 800
@@ -26,6 +29,15 @@ const
 
 proc `+`(a, b: Vector2): Vector2 =
   Vector2(x: a.x + b.x, y: a.y + b.y)
+
+proc initTimer(): Timer =
+  result.start = getTime()
+
+proc update(t: var Timer) =
+  t.last = getTime()
+
+proc elapsed(t: Timer): float =
+  max(t.last - t.start, 0)
 
 proc initPlayer(x1, y1, x2, y2: int): Player =
   var visuals = Visuals(start_x: x1, start_y: y1, height: y2 - y1, width: x2 - x1, grid_buffer: 10, square_buffer: 2)
@@ -66,10 +78,10 @@ proc drawFields(p: Player) =
   let r2 = Vector2(x: 2 * p.vis.grid_buffer.float32 + p.vis.field_size.x + p.vis.start_x.float32, y: p.vis.grid_buffer.float32 + p.vis.start_y.float32)
   let r3 = Vector2(x: p.vis.grid_buffer.float32 + p.vis.start_x.float32, y: 2 * p.vis.grid_buffer.float32 + p.vis.field_size.y + p.vis.start_y.float32)
   let r4 = Vector2(x: 2 * p.vis.grid_buffer.float32 + p.vis.field_size.x + p.vis.start_x.float32, y: 2 * p.vis.grid_buffer.float32 + p.vis.field_size.y + p.vis.start_y.float32)
-  drawRectangle(r1, p.vis.field_size, p.vis.colors[Color1].darken)
-  drawRectangle(r2, p.vis.field_size, p.vis.colors[Color2].darken)
-  drawRectangle(r3, p.vis.field_size, p.vis.colors[Color3].darken)
-  drawRectangle(r4, p.vis.field_size, p.vis.colors[Color4].darken)
+  drawRectangle(r1, p.vis.field_size, p.vis.colors[Color1])
+  drawRectangle(r2, p.vis.field_size, p.vis.colors[Color2])
+  drawRectangle(r3, p.vis.field_size, p.vis.colors[Color3])
+  drawRectangle(r4, p.vis.field_size, p.vis.colors[Color4])
 
   # Draw each square now
   for y, x in p.field.tl.coordinates:
@@ -112,12 +124,17 @@ proc drawSwapArrows(p: Player) =
   drawLine(start, endh, p.vis.line_width, p.vis.line_color)
   drawLine(start, endv, p.vis.line_width, p.vis.line_color)
 
+proc drawTime(t: Timer, p: Player) =
+  drawText(cstring($t.elapsed), int32(p.vis.start_x + p.vis.width + 100), int32(p.vis.start_y + (p.vis.field_size.y / 2).int32), 35.int32, Black)
+
 
 proc main =
     
   initWindow(screenWidth, screenHeight, "raylib [core] example - basic window")
   setTargetFPS(60) # Set our game to run at 60 frames-per-second
   var p = initPlayer(20, 20, 500, 500)
+  let goal = initField()
+  var t = initTimer()
 
   while not windowShouldClose(): # Detect window close button or ESC key
 
@@ -145,10 +162,20 @@ proc main =
         let c = p.field.cursorLocation
         p.field.swap(h, c)
         p.mode = Move
+    
+    if isKeyPressed(R):
+      p.field = initRandomField()
+    
+    if isKeyPressed(P):
+      echo p.field
+      echo goal
 
     beginDrawing()
     clearBackground(RayWhite)
     drawPlayer(p)
+    if p.field != goal:
+      t.update()
+    drawTime(t, p)
     endDrawing()
     
   closeWindow() # Close window and OpenGL context

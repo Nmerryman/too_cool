@@ -141,13 +141,13 @@ proc main =
   while not windowShouldClose(): # Detect window close button or ESC key
 
     if p.mode == Move:
-      if isKeyPressed(Up):
+      if isKeyPressed(Up) or isKeyPressed(W):
         cursorUp(p.field)
-      if isKeyPressed(Right):
+      if isKeyPressed(Right) or isKeyPressed(D):
         cursorRight(p.field)
-      if isKeyPressed(Down):
+      if isKeyPressed(Down) or isKeyPressed(S):
         cursorDown(p.field)
-      if isKeyPressed(Left):
+      if isKeyPressed(Left) or isKeyPressed(A):
         cursorLeft(p.field)
       if isKeyPressed(Space):
         p.mode = Swap

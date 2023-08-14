@@ -31,8 +31,8 @@
     <link rel="shortcut icon" href="https://www.raylib.com/favicon.ico">
 
     <style>
-        body { margin: 0px; }
-        canvas.emscripten { border: 0px none; background-color: black; margin-left: auto; margin-right: auto; width: 50%; display: block;}
+        body { margin: 0px; margin-left: auto; margin-right: auto; width: 50%; display: block; }
+        canvas.emscripten { border: 0px none; background-color: black;}
     </style>
     <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
     <script type='text/javascript'>
@@ -78,5 +78,8 @@
             };
         </script>
         {{{ SCRIPT }}}
+        <p>
+            Controls: WASD/↑←↓→ = move, Space = swap mode, R = restart
+        </p>
     </body>
 </html>

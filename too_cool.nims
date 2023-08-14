@@ -1,6 +1,6 @@
 when defined(emscripten):
   --define:GraphicsApiOpenGlEs2
-  --define:NaylibWebResources
+  # --define:NaylibWebResources
   --os:linux
   --cpu:wasm32
   --cc:clang
@@ -18,6 +18,6 @@ when defined(emscripten):
   --threads:off
   --panics:on
   --define:noSignalHandler
-  --passL:"-o tc.html"
+  # --passL:"-o tc.html"
   # Use raylib/src/shell.html or raylib/src/minshell.html
   # --passL:"--shell-file minshell.html"

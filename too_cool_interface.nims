@@ -1,6 +1,6 @@
 when defined(emscripten):
   --define:GraphicsApiOpenGlEs2
-  --define:NaylibWebResources
+  # --define:NaylibWebResources
   --os:linux
   --cpu:wasm32
   --cc:clang
@@ -19,5 +19,6 @@ when defined(emscripten):
   --panics:on
   --define:noSignalHandler
   --passL:"-o tci.html"
+  # --passC:"-IC:/Users/Nicholas/.nimble/pkgs2/naylib-4.6.1-b8dba6d8ec2d85d03665077430f315612b508f4c/raylib/src"
   # Use raylib/src/shell.html or raylib/src/minshell.html
-  # --passL:"--shell-file minshell.html"
+  --passL:"--shell-file minshell.html"

@@ -154,12 +154,12 @@ proc main =
     elif p.mode == Swap:
       if isKeyPressed(Space):
         p.mode = Move
-      if isKeyPressed(Right) or isKeyPressed(Left):
+      if isKeyPressed(Right) or isKeyPressed(Left) or isKeyPressed(D) or isKeyPressed(A):
         let h = p.field.targetHorizontal
         let c = p.field.cursorLocation
         p.field.swap(h, c)
         p.mode = Move
-      if isKeyPressed(Up) or isKeyPressed(Down):
+      if isKeyPressed(Up) or isKeyPressed(Down) or isKeyPressed(W) or isKeyPressed(S):
         let h = p.field.targetVertical
         let c = p.field.cursorLocation
         p.field.swap(h, c)

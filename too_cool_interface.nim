@@ -149,10 +149,10 @@ proc main =
         cursorDown(p.field)
       if isKeyPressed(Left) or isKeyPressed(A):
         cursorLeft(p.field)
-      if isKeyPressed(Space):
+      if isKeyPressed(Space) or isKeyPressed(V):
         p.mode = Swap
     elif p.mode == Swap:
-      if isKeyPressed(Space):
+      if isKeyPressed(Space) or isKeyPressed(V):
         p.mode = Move
       if isKeyPressed(Right) or isKeyPressed(Left) or isKeyPressed(D) or isKeyPressed(A):
         let h = p.field.targetHorizontal
